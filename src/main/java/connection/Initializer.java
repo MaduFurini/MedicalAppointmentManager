@@ -34,11 +34,12 @@ public class Initializer {
                         "id INT AUTO_INCREMENT PRIMARY KEY, " +
                         "nome VARCHAR(100) NOT NULL, " +
                         "email VARCHAR(100) NOT NULL, " +
+                        "senha VARCHAR(50), " +
                         "cpf VARCHAR(14) NOT NULL UNIQUE, " + 
                         "sexo ENUM('MASCULINO', 'FEMININO') NOT NULL, " +  
                         "dt_nascimento DATE NOT NULL, " +  
                         "endereco VARCHAR(255), " +  
-                        "crm INT, " +
+                        "crm VARCHAR(20), " +
                         "cargo VARCHAR(255), " +
                         "tipo_usuario ENUM('PACIENTE', 'FUNCIONARIO') NOT NULL" +
                         ")";

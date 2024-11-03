@@ -4,20 +4,47 @@
  */
 package view;
 
+import controller.FuncionarioController;
 import java.awt.Color;
+import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.Funcionario;
 
 /**
  *
  * @author dudaf
  */
 public class FuncionarioView extends javax.swing.JFrame {
+    private DefaultTableModel table;
 
     /**
      * Creates new form AgendaView
-     */
+     */ 
     public FuncionarioView() {
         initComponents();
         getContentPane().setBackground(Color.white);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+       
+        setLocationRelativeTo(null); 
+
+        List<Funcionario> funcionarios = FuncionarioController.index();
+        table = (DefaultTableModel) jTable.getModel();
+
+        for (Funcionario funcionario : funcionarios) {
+            table.addRow(new Object[]{
+                funcionario.getId(),
+                funcionario.getNome(),
+                funcionario.getCpf(),
+                funcionario.getEmail(),
+                funcionario.getSexo(),
+                funcionario.getCrm(),
+                funcionario.getCargo()
+            });
+        }
+
+        setVisible(true);
     }
 
     /**
@@ -42,7 +69,7 @@ public class FuncionarioView extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         inputProcurar = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -181,19 +208,16 @@ public class FuncionarioView extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setBackground(new java.awt.Color(198, 165, 255));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jTable.setBackground(new java.awt.Color(198, 165, 255));
+        jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
-                "ID", "Nome", "CPF", "Email", "CRM", "Cargo"
+                "ID", "Nome", "CPF", "Email", "Sexo", "CRM", "Cargo"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(jTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -244,7 +268,10 @@ public class FuncionarioView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
-        // TODO add your handling code here:
+        NewFuncionarioView nf = new NewFuncionarioView(0);
+        nf.setVisible(true);
+        
+        this.dispose();
     }//GEN-LAST:event_btnNovoActionPerformed
 
     private void inputProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputProcurarActionPerformed
@@ -252,11 +279,49 @@ public class FuncionarioView extends javax.swing.JFrame {
     }//GEN-LAST:event_inputProcurarActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
-        // TODO add your handling code here:
+        table = (DefaultTableModel) jTable.getModel();
+        int selectedRow = jTable.getSelectedRow();
+        
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, 
+                    "Por favor, selecione um funcionário para continuar",
+                    "Erro", JOptionPane.ERROR_MESSAGE
+                );
+            return;
+        }
+        
+        int confirm = JOptionPane.showConfirmDialog(
+            this, 
+            "Você tem certeza que deseja excluir este funcionário?", 
+            "Confirmação", 
+            JOptionPane.YES_NO_OPTION
+        );
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            int id = (int) table.getValueAt(selectedRow, 0);
+
+            FuncionarioController.destroy(id);
+
+            table.removeRow(selectedRow);
+        }
     }//GEN-LAST:event_btnExcluirActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-        // TODO add your handling code here:
+        table = (DefaultTableModel) jTable.getModel();
+        int selectedRow = jTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                "Por favor, selecione um funcionário para continuar",
+                "Erro", JOptionPane.ERROR_MESSAGE
+            );
+        } 
+
+        int id = (int) table.getValueAt(selectedRow, 0);
+        NewFuncionarioView na = new NewFuncionarioView(id);
+        na.setVisible(true);
+        
+        this.dispose();
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnPacientesMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPacientesMenuActionPerformed
@@ -336,7 +401,7 @@ public class FuncionarioView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable;
     private javax.swing.JButton sairBtn;
     // End of variables declaration//GEN-END:variables
 }

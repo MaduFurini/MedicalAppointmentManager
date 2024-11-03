@@ -22,7 +22,7 @@ public class FuncionarioController {
     public static List<Funcionario> index() {
         List<Funcionario> funcionarios = new ArrayList<>();
         
-        String searchSql = "SELECT * FROM funcionarios WHERE tipo_usuario = 'FUNCIONARIO'";
+        String searchSql = "SELECT * FROM pessoas WHERE tipo_usuario = 'FUNCIONARIO'";
         
         try (Connection con = Conexao.getConnection();
             PreparedStatement stmt = con.prepareStatement(searchSql);
@@ -35,11 +35,12 @@ public class FuncionarioController {
                 String cpf = rs.getString("cpf");
                 String nome = rs.getString("nome");
                 String email = rs.getString("email");
+                String senha = rs.getString("senha");
                 String sexo = rs.getString("sexo");
                 String dtNascimento = rs.getString("dt_nascimento");
                 String tipoUsuario = rs.getString("tipo_usuario");
                 
-                Funcionario funcionario = new Funcionario(id, crm, cargo, cpf, dtNascimento, nome, email, sexo, tipoUsuario);
+                Funcionario funcionario = new Funcionario(id, crm, cargo, senha, cpf, dtNascimento, nome, email, sexo, tipoUsuario);
                 funcionarios.add(funcionario);
             }
         } catch (SQLException e) {
@@ -47,13 +48,14 @@ public class FuncionarioController {
             
             return null;
         }
+        System.out.println(funcionarios);
         return funcionarios;
     }
     
-    public static boolean store(String crm, String cargo, String cpf, String dtNascimento, String nome, String email, String sexo) {
-        
+    public static boolean store(String crm, String cargo, String senha, String cpf, String dtNascimento, String nome, String email, String sexo) {
+        System.out.println(sexo);
         String sqlSearch = "SELECT COUNT(*) FROM pessoas WHERE cpf = ? OR email = ?";
-        String sqlStore = "INSERT INTO pessoas(crm, cargo, nome, email, cpf, sexo, dt_nascimento, tipo_usuario) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sqlStore = "INSERT INTO pessoas(crm, cargo, senha, nome, email, cpf, sexo, dt_nascimento, tipo_usuario) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection con = Conexao.getConnection()) {
             PreparedStatement search = con.prepareStatement(sqlSearch);
@@ -74,18 +76,19 @@ public class FuncionarioController {
             Date date = inputFormat.parse(dtNascimento); 
             String formattedDate = outputFormat.format(date); 
             
-            Funcionario newFuncionario = new Funcionario(crm, cargo, cpf, formattedDate, nome, email, sexo, "FUNCIONARIO");
+            Funcionario newFuncionario = new Funcionario(crm, cargo, senha, cpf, formattedDate, nome, email, sexo, "FUNCIONARIO");
 
             PreparedStatement store = con.prepareStatement(sqlStore);
             
             store.setString(1, newFuncionario.getCrm());
             store.setString(2, newFuncionario.getCargo());
-            store.setString(3, newFuncionario.getNome());
-            store.setString(4, newFuncionario.getEmail());
-            store.setString(5, newFuncionario.getCpf());
-            store.setString(6, newFuncionario.getSexo());
-            store.setString(7, newFuncionario.getDtNascimento());
-            store.setString(8, newFuncionario.getTipoUsuario());
+            store.setString(3, newFuncionario.getSenha());
+            store.setString(4, newFuncionario.getNome());
+            store.setString(5, newFuncionario.getEmail());
+            store.setString(6, newFuncionario.getCpf());
+            store.setString(7, newFuncionario.getSexo());
+            store.setString(8, newFuncionario.getDtNascimento());
+            store.setString(9, newFuncionario.getTipoUsuario());
 
             if (store.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(null, "Funcionário cadastrado com sucesso");
@@ -101,16 +104,16 @@ public class FuncionarioController {
             
             return false;
         } catch(SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao salvar funcionário" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao salvar funcionário " + e.getMessage());
 
             return false;
         }
     }   
     
-    public static boolean update(int id, String crm, String cargo, String cpf, String dtNascimento, String nome, String email, String sexo, String tipoUsuario) {
+    public static boolean update(int id, String crm, String cargo, String senha, String cpf, String dtNascimento, String nome, String email, String sexo) {
     
-        String sqlSearch = "SELECT COUNT(*) FROM funcionarios WHERE (cpf = ? OR email = ?) AND id != ?";
-        String sqlUpdate = "UPDATE funcionarios SET crm = ?, cargo = ?, nome = ?, email = ?, cpf = ?, sexo = ?, dt_nascimento = ? WHERE id = ?";
+        String sqlSearch = "SELECT COUNT(*) FROM pessoas WHERE (cpf = ? OR email = ?) AND id != ?";
+        String sqlUpdate = "UPDATE pessoas SET crm = ?, cargo = ?, senha = ?, nome = ?, email = ?, cpf = ?, sexo = ?, dt_nascimento = ? WHERE id = ?";
 
         try (Connection con = Conexao.getConnection()) {
             PreparedStatement search = con.prepareStatement(sqlSearch);
@@ -133,12 +136,13 @@ public class FuncionarioController {
             PreparedStatement update = con.prepareStatement(sqlUpdate);
             update.setString(1, crm);
             update.setString(2, cargo);
-            update.setString(3, nome);
-            update.setString(4, email);
-            update.setString(5, cpf);
-            update.setString(6, sexo);
-            update.setString(7, formattedDate);
-            update.setInt(8, id);
+            update.setString(3, senha);
+            update.setString(4, nome);
+            update.setString(5, email);
+            update.setString(6, cpf);
+            update.setString(7, sexo);
+            update.setString(8, formattedDate);
+            update.setInt(9, id);
 
             if (update.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(null, "Funcionário atualizado com sucesso");
@@ -157,7 +161,7 @@ public class FuncionarioController {
     }
     
     public static boolean destroy(int id) {
-        String sqlDelete = "DELETE FROM funcionarios WHERE id = ?";
+        String sqlDelete = "DELETE FROM pessoas WHERE id = ?";
 
         try (Connection con = Conexao.getConnection()) {
             PreparedStatement search = con.prepareStatement(sqlDelete);
@@ -177,7 +181,7 @@ public class FuncionarioController {
     }
     
     public static Funcionario show(int id) {
-        String searchSql = "SELECT * FROM funcionarios WHERE id = ?";
+        String searchSql = "SELECT * FROM pessoas WHERE id = ?";
 
         try (Connection con = Conexao.getConnection();
              PreparedStatement stmt = con.prepareStatement(searchSql)) {
@@ -192,11 +196,12 @@ public class FuncionarioController {
                 String cpf = rs.getString("cpf");
                 String nome = rs.getString("nome");
                 String email = rs.getString("email");
+                String senha = rs.getString("senha");
                 String sexo = rs.getString("sexo");
                 String dtNascimento = rs.getString("dt_nascimento");
                 String tipoUsuario = rs.getString("tipo_usuario");
 
-                return new Funcionario(crm, cargo, cpf, dtNascimento, nome, email, sexo, tipoUsuario);
+                return new Funcionario(crm, cargo, senha, cpf, dtNascimento, nome, email, sexo, tipoUsuario);
             }
         } catch (SQLException e) {
             System.out.println("Erro ao buscar funcionário: " + e.getMessage());

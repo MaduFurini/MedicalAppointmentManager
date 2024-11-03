@@ -307,6 +307,8 @@ public class PacienteView extends javax.swing.JFrame {
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
         NewPacienteView np = new NewPacienteView(0);
         np.setVisible(true);
+        
+        this.dispose();
     }//GEN-LAST:event_btnNovoActionPerformed
 
     private void inputProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputProcurarActionPerformed
@@ -338,7 +340,6 @@ public class PacienteView extends javax.swing.JFrame {
             PacienteController.destroy(id);
 
             table.removeRow(selectedRow);
-            JOptionPane.showMessageDialog(this, "Paciente excluído com sucesso.");
         }
     }//GEN-LAST:event_btnExcluirActionPerformed
 
