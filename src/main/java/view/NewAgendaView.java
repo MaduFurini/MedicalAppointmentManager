@@ -4,13 +4,27 @@
  */
 package view;
 
+import controller.ConsultaController;
+import controller.FuncionarioController;
+import controller.PacienteController;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import model.Consulta;
+import model.Funcionario;
+import model.Paciente;
 
 /**
  *
  * @author dudaf
  */
 public class NewAgendaView extends javax.swing.JFrame {
+    private int idConsulta = 0;
 
     /**
      * Creates new form NewAgendaView
@@ -18,8 +32,78 @@ public class NewAgendaView extends javax.swing.JFrame {
 //    public NewAgendaView(Consulta agenda) {
 //        initComponents();
 //    }
-    public NewAgendaView() {
+    public NewAgendaView(int id) {
         initComponents();
+        
+        List<Funcionario> funcionarios = FuncionarioController.index();
+        List<Paciente> pacientes = PacienteController.index();
+        
+        
+        String pacienteDisabled = "Selecione um paciente";
+        pacientesInput.addItem(pacienteDisabled);
+        
+        for (Paciente paciente : pacientes) {
+            pacientesInput.addItem(paciente.getNome() + " - " + paciente.getCpf());
+        }
+        
+        pacientesInput.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (pacientesInput.getSelectedItem().equals(pacienteDisabled)) {
+                    JOptionPane.showMessageDialog(pacientesInput, "Selecione um paciente válido.", "Atenção", JOptionPane.WARNING_MESSAGE);
+                    pacientesInput.setSelectedIndex(1); 
+                }
+            }
+        });
+        
+        String profDisabled = "Selecione um profissional";
+        funcionariosInput.addItem(profDisabled);
+        
+        for (Funcionario funcionario : funcionarios) {
+            funcionariosInput.addItem(funcionario.getNome() + " - " + funcionario.getCpf());
+        }
+        
+        funcionariosInput.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (funcionariosInput.getSelectedItem().equals(profDisabled)) {
+                    JOptionPane.showMessageDialog(pacientesInput, "Selecione um profissional válido.", "Atenção", JOptionPane.WARNING_MESSAGE);
+                    pacientesInput.setSelectedIndex(1); 
+                }
+            }
+        });
+        
+        if (id != 0) { 
+            this.idConsulta = id;
+            loadConsulta(id);
+        }
+    }   
+    
+    private void loadConsulta(int id) {
+        Consulta consulta = ConsultaController.show(id);
+        Paciente paciente = PacienteController.show(consulta.getId_paciente());
+        Funcionario funcionario = FuncionarioController.show(consulta.getId_funcionario());
+
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date date = inputFormat.parse(consulta.getData()); 
+            String formattedDate = outputFormat.format(date); 
+
+            String pacienteNome = paciente.getNome() + " - " + paciente.getCpf();
+            String funcionarioNome = funcionario.getNome() + " - " + funcionario.getCpf();
+
+            pacientesInput.setSelectedItem(pacienteNome);
+            funcionariosInput.setSelectedItem(funcionarioNome);
+            inputProcedimento.setText(consulta.getProcedimento());
+            inputData.setText(formattedDate);
+            inputHora.setSelectedItem(consulta.getHora());
+            inputObservacao.setText(consulta.getObservacao());
+
+            
+        } catch (ParseException e) {
+            System.out.println("Erro ao formatar data: " + e.getMessage());
+        }
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -33,12 +117,8 @@ public class NewAgendaView extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        inputPaciente = new javax.swing.JTextField();
         btnSalvar = new javax.swing.JButton();
-        btnBuscarProfissional = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
-        inputProfissional = new javax.swing.JTextField();
-        btnBuscarPaciente = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -50,6 +130,8 @@ public class NewAgendaView extends javax.swing.JFrame {
         inputProcedimento = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         inputObservacao = new javax.swing.JTextArea();
+        pacientesInput = new javax.swing.JComboBox<>();
+        funcionariosInput = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -79,26 +161,17 @@ public class NewAgendaView extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setText("Observação");
 
-        inputPaciente.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputPacienteActionPerformed(evt);
-            }
-        });
-
         btnSalvar.setBackground(new java.awt.Color(198, 165, 255));
         btnSalvar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnSalvar.setText("Salvar");
-
-        btnBuscarProfissional.setBackground(new java.awt.Color(198, 165, 255));
-        btnBuscarProfissional.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnBuscarProfissional.setText("Buscar");
+        btnSalvar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSalvarActionPerformed(evt);
+            }
+        });
 
         btnCancelar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnCancelar.setText("Cancelar");
-
-        btnBuscarPaciente.setBackground(new java.awt.Color(198, 165, 255));
-        btnBuscarPaciente.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnBuscarPaciente.setText("Buscar");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setText("Profissional");
@@ -136,6 +209,12 @@ public class NewAgendaView extends javax.swing.JFrame {
         inputObservacao.setRows(5);
         jScrollPane2.setViewportView(inputObservacao);
 
+        pacientesInput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pacientesInputActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -152,12 +231,9 @@ public class NewAgendaView extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(inputPaciente, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnBuscarPaciente, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel4)
-                            .addComponent(jLabel5))
+                            .addComponent(jLabel5)
+                            .addComponent(pacientesInput, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(30, 30, 30)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -166,12 +242,9 @@ public class NewAgendaView extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(inputData, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(inputProfissional, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnBuscarProfissional, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(jLabel3))
-                                .addGap(0, 36, Short.MAX_VALUE))))
+                                    .addComponent(jLabel3)
+                                    .addComponent(funcionariosInput, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(36, 36, 36))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
@@ -184,7 +257,7 @@ public class NewAgendaView extends javax.swing.JFrame {
                                     .addComponent(jLabel7)
                                     .addComponent(inputHora, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGap(0, 36, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -195,13 +268,10 @@ public class NewAgendaView extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnBuscarPaciente, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(inputPaciente, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnBuscarProfissional, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(inputProfissional, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(28, 28, 28)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pacientesInput, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(funcionariosInput, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
                 .addComponent(jLabel5)
                 .addGap(13, 13, 13)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -222,7 +292,7 @@ public class NewAgendaView extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSalvar, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 27, Short.MAX_VALUE))
+                .addGap(0, 24, Short.MAX_VALUE))
         );
 
         pack();
@@ -232,9 +302,44 @@ public class NewAgendaView extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_inputDataActionPerformed
 
-    private void inputPacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputPacienteActionPerformed
+    private void pacientesInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pacientesInputActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_inputPacienteActionPerformed
+    }//GEN-LAST:event_pacientesInputActionPerformed
+
+    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
+        String paciente = (String) pacientesInput.getSelectedItem();
+        String funcionario = (String) funcionariosInput.getSelectedItem();
+        String procedimento = inputProcedimento.getText();
+        String data = inputData.getText();
+        String hora = (String) inputHora.getSelectedItem();
+        String observacao = inputObservacao.getText();
+
+        if (paciente.isEmpty() || funcionario.isEmpty() || procedimento.isEmpty() || data.isEmpty() || hora.isEmpty()) {
+
+            String mensagem = "Por favor, preencha todos os campos obrigatórios:";
+            
+            if (paciente.isEmpty()) mensagem += "\n- Paciente";
+            if (funcionario.isEmpty()) mensagem += "\n- Fucnionário";
+            if (procedimento.isEmpty()) mensagem += "\n- Procedimento";
+            if (data.isEmpty()) mensagem += "\n- Data";
+            if (hora.isEmpty()) mensagem += "\n- Hora";
+
+            JOptionPane.showMessageDialog(null, mensagem);
+            return; 
+        }
+
+        if (idConsulta != 0){
+            ConsultaController.update(idConsulta, paciente, funcionario, procedimento, data, hora, observacao);
+        } else {
+            ConsultaController.store(paciente, funcionario, procedimento, data, hora, observacao);
+        }       
+
+
+        this.dispose();
+
+        AgendaView a = new AgendaView();
+        a.setVisible(true);
+    }//GEN-LAST:event_btnSalvarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -266,22 +371,18 @@ public class NewAgendaView extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new NewAgendaView().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnBuscarPaciente;
-    private javax.swing.JButton btnBuscarProfissional;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnSalvar;
+    private javax.swing.JComboBox<String> funcionariosInput;
     private javax.swing.JFormattedTextField inputData;
     private javax.swing.JComboBox<String> inputHora;
     private javax.swing.JTextArea inputObservacao;
-    private javax.swing.JTextField inputPaciente;
     private javax.swing.JTextArea inputProcedimento;
-    private javax.swing.JTextField inputProfissional;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -292,5 +393,6 @@ public class NewAgendaView extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JComboBox<String> pacientesInput;
     // End of variables declaration//GEN-END:variables
 }

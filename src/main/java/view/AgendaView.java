@@ -4,7 +4,13 @@
  */
 package view;
 
+import controller.ConsultaController;
+import controller.FuncionarioController;
 import java.awt.Color;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.Consulta;
 
 
 /**
@@ -12,9 +18,8 @@ import java.awt.Color;
  * @author dudaf
  */
 public class AgendaView extends javax.swing.JFrame {
-    PacienteView p = new PacienteView();
-    FuncionarioView f = new FuncionarioView();
-    LoginView l = new LoginView();
+    private DefaultTableModel table;
+
 
     /**
      * Creates new form AgendaView
@@ -23,6 +28,22 @@ public class AgendaView extends javax.swing.JFrame {
         initComponents();
         getContentPane().setBackground(Color.white);
         
+        List<Consulta> consultas = ConsultaController.index();
+        table = (DefaultTableModel) jTable.getModel();
+
+        for (Consulta consulta : consultas) {
+            table.addRow(new Object[]{
+                consulta.getId(),
+                consulta.getNomePaciente(),
+                consulta.getCpfPaciente(),
+                consulta.getNomeFuncionario(),
+                consulta.getProcedimento(),
+                consulta.getData(),
+                consulta.getHora(),
+            });
+        }
+
+        setVisible(true);
     }
 
     /**
@@ -47,7 +68,7 @@ public class AgendaView extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         inputProcurar = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -138,8 +159,9 @@ public class AgendaView extends javax.swing.JFrame {
                 .addComponent(btnPacientesMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnFuncionariosMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(sairBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(sairBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         btnNovo.setBackground(new java.awt.Color(198, 165, 255));
@@ -186,19 +208,16 @@ public class AgendaView extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setBackground(new java.awt.Color(198, 165, 255));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jTable.setBackground(new java.awt.Color(198, 165, 255));
+        jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+
             },
             new String [] {
-                "ID", "Nome paciente", "CPF", "Profissional", "Tipo atendimento", "Procedimento", "Data"
+                "ID", "Nome paciente", "CPF", "Profissional", "Procedimento", "Data", "Hora"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(jTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -209,23 +228,22 @@ public class AgendaView extends javax.swing.JFrame {
                 .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel3)
-                                .addComponent(inputProcurar, javax.swing.GroupLayout.PREFERRED_SIZE, 737, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnNovo, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnExcluir, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1302, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(19, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(inputProcurar, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(btnNovo, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnExcluir, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1011, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(jLabel1)
@@ -241,16 +259,19 @@ public class AgendaView extends javax.swing.JFrame {
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(inputProcurar)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 731, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19))
+                .addGap(26, 26, 26)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 521, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
-        // TODO add your handling code here:
+        NewAgendaView a = new NewAgendaView(0);
+        a.setVisible(true);
+        
+        this.dispose();
     }//GEN-LAST:event_btnNovoActionPerformed
 
     private void inputProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputProcurarActionPerformed
@@ -258,29 +279,67 @@ public class AgendaView extends javax.swing.JFrame {
     }//GEN-LAST:event_inputProcurarActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
-        // TODO add your handling code here:
+        table = (DefaultTableModel) jTable.getModel();
+        int selectedRow = jTable.getSelectedRow();
+        
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, 
+                    "Por favor, selecione uma consulta para continuar",
+                    "Erro", JOptionPane.ERROR_MESSAGE
+                );
+            return;
+        }
+        
+        int confirm = JOptionPane.showConfirmDialog(
+            this, 
+            "Você tem certeza que deseja excluir esta consulta?", 
+            "Confirmação", 
+            JOptionPane.YES_NO_OPTION
+        );
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            int id = (int) table.getValueAt(selectedRow, 0);
+
+            ConsultaController.destroy(id);
+
+            table.removeRow(selectedRow);
+        }
     }//GEN-LAST:event_btnExcluirActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-        // TODO add your handling code here:
+        table = (DefaultTableModel) jTable.getModel();
+        int selectedRow = jTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                "Por favor, selecione uma consulta para continuar",
+                "Erro", JOptionPane.ERROR_MESSAGE
+            );
+        } 
+
+        int id = (int) table.getValueAt(selectedRow, 0);
+        NewAgendaView na = new NewAgendaView(id);
+        na.setVisible(true);
+        
+        this.dispose();
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnPacientesMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPacientesMenuActionPerformed
         this.setVisible(false);
         
-        p.setVisible(true);
+//        p.setVisible(true);
     }//GEN-LAST:event_btnPacientesMenuActionPerformed
 
     private void btnFuncionariosMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFuncionariosMenuActionPerformed
         this.setVisible(false);
         
-        f.setVisible(true);
+//        f.setVisible(true);
     }//GEN-LAST:event_btnFuncionariosMenuActionPerformed
 
     private void sairBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairBtnActionPerformed
         this.setVisible(false);
         
-        l.setVisible(true);
+//        l.setVisible(true);
     }//GEN-LAST:event_sairBtnActionPerformed
 
     private void btnAgendaMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgendaMenuActionPerformed
@@ -336,7 +395,11 @@ public class AgendaView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable;
     private javax.swing.JButton sairBtn;
     // End of variables declaration//GEN-END:variables
+
+    private NewAgendaView NewAgendaView() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

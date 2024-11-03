@@ -51,10 +51,10 @@ public class Initializer {
                         "id_funcionario INT NOT NULL, " +
                         "procedimento VARCHAR(255) NOT NULL, " +
                         "data DATE NOT NULL, " +
-                        "hora DATETIME NOT NULL, " +
+                        "hora VARCHAR(8) NOT NULL, " +
                         "observacao VARCHAR(255), " +
-                        "FOREIGN KEY (id_paciente) REFERENCES pessoas (id), " +
-                        "FOREIGN KEY (id_funcionario) REFERENCES pessoas (id)" +
+                        "FOREIGN KEY (id_paciente) REFERENCES pessoas (id) ON DELETE CASCADE, " +
+                        "FOREIGN KEY (id_funcionario) REFERENCES pessoas (id) ON DELETE CASCADE" +
                         ")";
                 stmt.execute(createConsultasTable);
 

@@ -20,120 +20,37 @@ import model.Consulta;
  * @author dudaf
  */
 public class ConsultaController {
-//    PacienteController pacienteController = new PacienteController();
-//    FuncionarioController funcionarioController = new FuncionarioController();
-//    
-//    ArrayList<Paciente> pacientes = pacienteController.getPacientes();
-//    ArrayList<Funcionario> funcionarios = funcionarioController.getFuncionarios();
-//    public ArrayList<Consulta> consultas = new ArrayList<>();
-//    
-//    public String show(Object identificador) {
-//        int id = Integer.parseInt(identificador.toString());
-//        String nome_paciente = null;
-//        String nome_funcionario = null;
-//
-//        // procura a consulta pelo id passado
-//        for(int i = 0; i <= consultas.size(); i++){
-//            if(consultas.get(i).getId() == id){
-//                Consulta consulta = consultas.get(i);
-//
-//                // procurando o paciente da consulta
-//                for(int p = 0; p <= pacientes.size(); p++){
-//                    if(pacientes.get(p).getId() == consulta.getId_paciente()){
-//                        nome_paciente = pacientes.get(p).getNome();
-//
-//                        // se achou o paciente procura o funcionario
-//                        for(int f = 0; f <= funcionarios.size(); f++){
-//                            if(funcionarios.get(f).getId() == consulta.getId_funcionario()){
-//                                nome_funcionario = funcionarios.get(p).getNome();
-//                            }
-//                            else{
-//                                return "Funcionario responsável pela consulta não foi encontrado";
-//                            }
-//                        }
-//                    }
-//                    else{
-//                        return "Paciente dessa consulta não foi encontrado";
-//                    }
-//                }
-//                return "Paciente: " + nome_paciente + 
-//                        "Funcionário: " + nome_funcionario +
-//                        "Procedimento: " + consulta.getProcedimento() +
-//                        "Data: " + consulta.getData() + 
-//                        "Hora: " + consulta.getHora() + 
-//                        "Observação: " + consulta.getObservacao();
-//            }
-//        }
-//        return "Consulta não encontrada";
-//    }
-//
-//    public boolean store(int id_paciente, int id_funcionario, String procedimento, String data, String hora, String observacao) {
-//        try{
-//            Consulta newConsulta = new Consulta(id_paciente, id_funcionario, procedimento, data, hora, observacao);
-//            consultas.add(newConsulta);
-//            return true;
-//        }
-//        catch (Exception e){
-//            return false;
-//        }
-//    }
-//    
-//    public boolean update(int id, int id_paciente, int id_funcionario, String procedimento, String data, String hora, String observacao) {
-//        for(int i = 0; i <= consultas.size(); i++){
-//            if(consultas.get(i).getId() == id){
-//                try{
-//                    Consulta updateConsulta = new Consulta(id, id_paciente, id_funcionario, procedimento, data, hora, observacao);
-//                    consultas.set(i, updateConsulta);
-//                    System.out.println("Consulta atualizada");
-//                    return true;
-//                }
-//                catch (Exception e){
-//                    System.out.println("Não foi possivel atualizar essa consulta");
-//                    return false;
-//                }
-//            }
-//        }
-//        System.out.println("Consulta não encontrada");
-//        return false;
-//    }
-//    
-//    public boolean destroy(int id){
-//        for(int i = 0; i <= consultas.size(); i++){
-//            if(consultas.get(i).getId() == id){
-//                try{
-//                    consultas.remove(i);
-//                    System.out.println("Consulta apagada");
-//                    return true;
-//                }
-//                catch (Exception e){
-//                    System.out.println("Não foi possivel apagar essa consulta");
-//                    return false;
-//                }
-//            }
-//        }
-//        System.out.println("Consulta não encontrada");
-//        return false;
-//    }
-    
+  
     public static List<Consulta> index() {
         List<Consulta> consultas = new ArrayList<>();
-        
-        String searchSql = "SELECT * FROM consultas";
-        
+
+        String searchSql = "SELECT consultas.id AS consulta_id, " +
+                           "paciente.nome AS paciente_nome, " +
+                           "paciente.cpf AS paciente_cpf, " +
+                           "funcionario.nome AS funcionario_nome, " +
+                           "consultas.procedimento, " +
+                           "consultas.data, " +
+                           "consultas.hora, " +
+                           "consultas.observacao " +
+                           "FROM consultas " +
+                           "JOIN pessoas AS paciente ON consultas.id_paciente = paciente.id " +
+                           "JOIN pessoas AS funcionario ON consultas.id_funcionario = funcionario.id";
+
         try (Connection con = Conexao.getConnection();
-            PreparedStatement stmt = con.prepareStatement(searchSql);
-            ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = con.prepareStatement(searchSql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                int id = parseInt(rs.getString("id"));
-                int id_paciente = parseInt(rs.getString("id_paciente"));
-                int id_funcionario = parseInt(rs.getString("id_funcionario"));
+                int id = rs.getInt("consulta_id");
+                String nomePaciente = rs.getString("paciente_nome");
+                String cpfPaciente = rs.getString("paciente_cpf");
+                String nomeFuncionario = rs.getString("funcionario_nome");
                 String procedimento = rs.getString("procedimento");
                 String data = rs.getString("data");
                 String hora = rs.getString("hora");
                 String observacao = rs.getString("observacao");
-                
-                Consulta consulta = new Consulta(id, id_paciente, id_funcionario, procedimento, data, hora, observacao);
+
+                Consulta consulta = new Consulta(id, nomePaciente, cpfPaciente, nomeFuncionario, procedimento, data, hora, observacao);
                 consultas.add(consulta);
             }
         } catch (SQLException e) {
@@ -143,115 +60,122 @@ public class ConsultaController {
         }
         return consultas;
     }
+
     
-    public static boolean store(int id_paciente, int id_funcionario, String procedimento, String data, String hora, String observacao) {
-        
-        String sqlSearch = "SELECT COUNT(*) FROM consultas WHERE cpf = ? OR email = ?";
+    public static boolean store(String paciente, String funcionario, String procedimento, String data, String hora, String observacao) {
+        String sqlSearchPaciente = "SELECT id FROM pessoas WHERE cpf = ?";
+        String sqlSearchFuncionario = "SELECT id FROM pessoas WHERE cpf = ?";
         String sqlStore = "INSERT INTO consultas(id_paciente, id_funcionario, procedimento, data, hora, observacao) VALUES(?, ?, ?, ?, ?, ?)";
-        
+
         try (Connection con = Conexao.getConnection()) {
-            PreparedStatement search = con.prepareStatement(sqlSearch);
-            
-            search.setString(1, data);
-            search.setString(2, hora);
-            
-            ResultSet rs = search.executeQuery();
-            
-            if (rs.next() && rs.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(null, "Já existe uma consulta registrada nesta data e hora");
-                
+            String[] partesPaciente = paciente.split(" - ");
+            if (partesPaciente.length < 2) {
+                JOptionPane.showMessageDialog(null, "Formato de paciente inválido. Certifique-se de que contém 'Nome - CPF'.");
                 return false;
             }
+            String cpfPaciente = partesPaciente[1];
 
-            //formatar data
+            String[] partesFuncionario = funcionario.split(" - ");
+            if (partesFuncionario.length < 2) {
+                JOptionPane.showMessageDialog(null, "Formato de funcionário inválido. Certifique-se de que contém 'Nome - CPF'.");
+                return false;
+            }
+            String cpfFuncionario = partesFuncionario[1];
+
+            int idPaciente = getIdByCpf(con, sqlSearchPaciente, cpfPaciente);
+            int idFuncionario = getIdByCpf(con, sqlSearchFuncionario, cpfFuncionario);
+
             SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy");
             SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date date = inputFormat.parse(data); 
+            Date date = inputFormat.parse(data);
             String formattedDate = outputFormat.format(date);
-            // formatar hora
-            DateTimeFormatter hourFormat = DateTimeFormatter.ofPattern("HH:mm");
-            LocalTime hour = LocalTime.parse(hora, hourFormat);
-            String formattedHour = hour.toString();
-            
-            Consulta newConsulta = new Consulta(id_paciente, id_funcionario, procedimento, formattedDate, formattedHour, observacao);
 
-            PreparedStatement store = con.prepareStatement(sqlStore);
-            
-            store.setInt(1, newConsulta.getId_paciente());
-            store.setInt(2, newConsulta.getId_funcionario());
-            store.setString(3, newConsulta.getProcedimento());
-            store.setString(4, newConsulta.getData());
-            store.setString(5, newConsulta.getHora());
-            store.setString(6, newConsulta.getObservacao());
+            try (PreparedStatement store = con.prepareStatement(sqlStore)) {
+                store.setInt(1, idPaciente);
+                store.setInt(2, idFuncionario);
+                store.setString(3, procedimento);
+                store.setString(4, formattedDate);
+                store.setString(5, hora);
+                store.setString(6, observacao);
 
-            if (store.executeUpdate() > 0) {
-                JOptionPane.showMessageDialog(null, "Consulta cadastrada com sucesso");
-
-                return true;
-            } else {
-                JOptionPane.showMessageDialog(null, "Erro ao cadastrar consulta");
-
-                return false;
+                if (store.executeUpdate() > 0) {
+                    JOptionPane.showMessageDialog(null, "Consulta cadastrada com sucesso");
+                    return true;
+                } else {
+                    JOptionPane.showMessageDialog(null, "Erro ao cadastrar consulta");
+                    return false;
+                }
             }
         } catch (ParseException e) {
             System.out.println("Erro ao formatar data ou hora: " + e.getMessage());
-            
             return false;
-        } catch(SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao salvar consulta" + e.getMessage());
-
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Erro ao salvar consulta: " + e.getMessage());
             return false;
         }
-    }   
+    }
+
+    public static boolean update(int id, String paciente, String funcionario, String procedimento, String data, String hora, String observacao) {
     
-    public static boolean update(int id, int id_paciente, int id_funcionario, String procedimento, String data, String hora, String observacao) {
-    
-        String sqlSearch = "SELECT COUNT(*) FROM consultas WHERE (data = ? OR hora = ?) AND id != ?";
         String sqlUpdate = "UPDATE consultas SET id_paciente = ?, id_funcionario = ?, procedimento = ?, data = ?, hora = ?, observacao = ? WHERE id = ?";
+        String sqlSearch = "SELECT COUNT(*) FROM consultas WHERE data = ? AND hora = ? AND id <> ?"; 
 
         try (Connection con = Conexao.getConnection()) {
-            PreparedStatement search = con.prepareStatement(sqlSearch);
-            search.setString(1, data);
-            search.setString(2, hora);
-            search.setInt(3, id);
- 
-            ResultSet rs = search.executeQuery();
-
-            if (rs.next() && rs.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(null, "Já existe uma consulta registrada nesta data e hora");
+            String[] partesPaciente = paciente.split(" - ");
+            if (partesPaciente.length < 2) {
+                JOptionPane.showMessageDialog(null, "Formato de paciente inválido. Certifique-se de que contém 'Nome - CPF'.");
                 return false;
             }
- 
-            //formatar data
+            String cpfPaciente = partesPaciente[1];
+
+            String[] partesFuncionario = funcionario.split(" - ");
+            if (partesFuncionario.length < 2) {
+                JOptionPane.showMessageDialog(null, "Formato de funcionário inválido. Certifique-se de que contém 'Nome - CPF'.");
+                return false;
+            }
+            String cpfFuncionario = partesFuncionario[1];
+
+            int idPaciente = getIdByCpf(con, "SELECT id FROM pessoas WHERE cpf = ?", cpfPaciente);
+            int idFuncionario = getIdByCpf(con, "SELECT id FROM pessoas WHERE cpf = ?", cpfFuncionario);
+
             SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy");
             SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date date = inputFormat.parse(data); 
+            Date date = inputFormat.parse(data);
             String formattedDate = outputFormat.format(date);
-            // formatar hora
-            DateTimeFormatter hourFormat = DateTimeFormatter.ofPattern("HH:mm");
-            LocalTime hour = LocalTime.parse(hora, hourFormat);
-            String formattedHour = hour.toString();
+            
+            try (PreparedStatement search = con.prepareStatement(sqlSearch)) {
+                search.setString(1, formattedDate);
+                search.setString(2, hora);
+                search.setInt(3, id);
 
-            PreparedStatement update = con.prepareStatement(sqlUpdate);
-            update.setInt(1, id_paciente);
-            update.setInt(2, id_funcionario);
-            update.setString(3, procedimento);
-            update.setString(4, formattedDate);
-            update.setString(5, formattedHour);
-            update.setString(6, observacao);
-            update.setInt(7, id);
+                ResultSet rs = search.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "Já existe uma consulta registrada nesta data e hora");
+                    return false;
+                }
+            }
 
-            if (update.executeUpdate() > 0) {
-                JOptionPane.showMessageDialog(null, "Consulta atualizada com sucesso");
-                return true;
-            } else {
-                JOptionPane.showMessageDialog(null, "Erro ao atualizar consulta");
-                return false;
+            try (PreparedStatement update = con.prepareStatement(sqlUpdate)) {
+                update.setInt(1, idPaciente);
+                update.setInt(2, idFuncionario);
+                update.setString(3, procedimento);
+                update.setString(4, formattedDate);
+                update.setString(5, hora);
+                update.setString(6, observacao);
+                update.setInt(7, id);
+
+                if (update.executeUpdate() > 0) {
+                    JOptionPane.showMessageDialog(null, "Consulta atualizada com sucesso");
+                    return true;
+                } else {
+                    JOptionPane.showMessageDialog(null, "Erro ao atualizar consulta");
+                    return false;
+                }
             }
         } catch (ParseException e) {
             System.out.println("Erro ao formatar data ou hora: " + e.getMessage());
             return false;
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Erro ao atualizar consulta: " + e.getMessage());
             return false;
         }
@@ -280,27 +204,40 @@ public class ConsultaController {
     public static Consulta show(int id) {
         String searchSql = "SELECT * FROM consultas WHERE id = ?";
 
-        try (Connection con = Conexao.getConnection();
-            PreparedStatement stmt = con.prepareStatement(searchSql)) {
-           
-            stmt.setInt(1, id); 
+    try (Connection con = Conexao.getConnection();
+         PreparedStatement stmt = con.prepareStatement(searchSql)) {
+        
+        stmt.setInt(1, id); 
 
-            ResultSet rs = stmt.executeQuery();
+        ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                int id_paciente = rs.getInt("id_paciente");
-                int id_funcionario = rs.getInt("id_funcionario");
-                String procedimento = rs.getString("procedimento");
-                String data = rs.getString("data");
-                String hora = rs.getString("hora");
-                String observacao = rs.getString("observacao");
-         
-                return new Consulta(id_paciente, id_funcionario, procedimento, data, hora, observacao);
-            }
-        } catch (SQLException e) {
-            System.out.println("Erro ao buscar consulta: " + e.getMessage());
+        if (rs.next()) {
+            int id_paciente = rs.getInt("id_paciente");
+            int id_funcionario = rs.getInt("id_funcionario");
+            String procedimento = rs.getString("procedimento");
+            String data = rs.getString("data");
+            String hora = rs.getString("hora");
+            String observacao = rs.getString("observacao");
+
+            return new Consulta(id_paciente, id_funcionario, procedimento, data, hora, observacao);
         }
+    } catch (SQLException e) {
+        System.out.println("Erro ao buscar consulta: " + e.getMessage());
+    }
 
-        return null; 
+    return null; 
+}
+
+    
+    private static int getIdByCpf(Connection con, String sql, String cpf) throws SQLException {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, cpf);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        }
+        return 0; 
     }
 }

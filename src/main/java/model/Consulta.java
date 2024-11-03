@@ -13,6 +13,11 @@ public class Consulta {
     private String data;
     private String hora;
     private String observacao;
+    
+    private String nomePaciente;
+    private String cpfPaciente;
+    private String nomeFuncionario;
+    private String cpfFuncionario;
 
     public Consulta(int id_paciente, int id_funcionario, String procedimento, String data, String hora, String observacao) {
         contador = contador++;
@@ -35,6 +40,19 @@ public class Consulta {
         this.hora = hora;
         this.observacao = observacao;
     }
+    
+    // Usado para listagem de consultas
+    public Consulta(int id, String nomePaciente, String cpfPaciente, String nomeFuncionario, String procedimento, String data, String hora, String observacao) {
+        this.id = id;
+        this.nomePaciente = nomePaciente;
+        this.cpfPaciente = cpfPaciente;
+        this.nomeFuncionario = nomeFuncionario;
+        this.procedimento = procedimento;
+        this.data = data;
+        this.hora = hora;
+        this.observacao = observacao;
+    }
+     
     public int getId() {
         return id;
     }
@@ -90,4 +108,38 @@ public class Consulta {
     public void setObservacao(String observacao) {
         this.observacao = observacao;
     }
+
+    public String getNomePaciente() {
+        return nomePaciente;
+    }
+
+    public void setNomePaciente(String nomePaciente) {
+        this.nomePaciente = nomePaciente;
+    }
+
+    public String getCpfPaciente() {
+        return cpfPaciente;
+    }
+
+    public void setCpfPaciente(String cpfPaciente) {
+        this.cpfPaciente = cpfPaciente;
+    }
+
+    public String getNomeFuncionario() {
+        return nomeFuncionario;
+    }
+
+    public void setNomeFuncionario(String nomeFuncionario) {
+        this.nomeFuncionario = nomeFuncionario;
+    }
+
+    public String getCpfFuncionario() {
+        return cpfFuncionario;
+    }
+
+    public void setCpfFuncionario(String cpfFuncionario) {
+        this.cpfFuncionario = cpfFuncionario;
+    }
+    
+    
 }
