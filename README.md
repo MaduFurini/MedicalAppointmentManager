@@ -25,7 +25,8 @@ O **Medical Appointment Manager** foi desenvolvido para gerenciar consultas méd
 ## 🔧 Como usar
 
 Siga os passos abaixo para configurar o projeto em sua máquina:
-1. Clone o repositório:
+
+1. Clone o repositório ou baixe e descompacte o projeto :
    ```bash
    git clone https://github.com/MaduFurini/MedicalAppointmentManager.git
 ![image](https://github.com/user-attachments/assets/f7aab8d1-2dbd-41b4-bb43-ac13e09ffa1d)
