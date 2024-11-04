@@ -28,6 +28,7 @@ Siga os passos abaixo para configurar o projeto em sua máquina:
 1. Clone o repositório:
    ```bash
    git clone https://github.com/MaduFurini/MedicalAppointmentManager.git
+![image](https://github.com/user-attachments/assets/f7aab8d1-2dbd-41b4-bb43-ac13e09ffa1d)
 
 2. Rode o arquivo Main: <br>
 ├── src/ │ └── main/ │ └── java/ │ └── medicalappointmentmanager/ │ ├── model/ │ │ └── Main.java
