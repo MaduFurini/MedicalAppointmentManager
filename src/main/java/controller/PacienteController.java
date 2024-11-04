@@ -77,7 +77,7 @@ public class PacienteController {
             String formattedDate = outputFormat.format(date); 
             
             Paciente newPaciente = new Paciente(endereco, cpf, formattedDate, nome, email, sexo, "PACIENTE");
-
+            
             PreparedStatement store = con.prepareStatement(sqlStore);
             
             store.setString(1, newPaciente.getNome());
@@ -197,8 +197,8 @@ public class PacienteController {
                 String sexo = rs.getString("sexo");
                 String dtNascimento = rs.getString("dt_nascimento");
                 String tipoUsuario = rs.getString("tipo_usuario");
-
-                return new Paciente(endereco, cpf, nome, email, sexo, dtNascimento, tipoUsuario);
+                
+                return new Paciente(endereco, cpf, dtNascimento, nome, email, sexo , tipoUsuario);
             }
         } catch (SQLException e) {
             System.out.println("Erro ao buscar paciente: " + e.getMessage());

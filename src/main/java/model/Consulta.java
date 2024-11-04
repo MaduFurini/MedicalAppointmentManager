@@ -5,7 +5,6 @@ package model;
  * @author dudaf
  */
 public class Consulta {
-    private static int contador = 0;
     private int id;
     private int id_paciente;
     private int id_funcionario;
@@ -20,8 +19,6 @@ public class Consulta {
     private String cpfFuncionario;
 
     public Consulta(int id_paciente, int id_funcionario, String procedimento, String data, String hora, String observacao) {
-        contador = contador++;
-        this.id = contador;
         this.id_paciente = id_paciente;
         this.id_funcionario = id_funcionario;
         this.procedimento = procedimento;

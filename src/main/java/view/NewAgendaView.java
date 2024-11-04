@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import model.Consulta;
 import model.Funcionario;
@@ -28,12 +29,14 @@ public class NewAgendaView extends javax.swing.JFrame {
 
     /**
      * Creates new form NewAgendaView
+     * @param id
      */
 //    public NewAgendaView(Consulta agenda) {
 //        initComponents();
 //    }
     public NewAgendaView(int id) {
         initComponents();
+        setLocationRelativeTo(null);
         
         List<Funcionario> funcionarios = FuncionarioController.index();
         List<Paciente> pacientes = PacienteController.index();
@@ -172,6 +175,11 @@ public class NewAgendaView extends javax.swing.JFrame {
 
         btnCancelar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setText("Profissional");
@@ -340,6 +348,13 @@ public class NewAgendaView extends javax.swing.JFrame {
         AgendaView a = new AgendaView();
         a.setVisible(true);
     }//GEN-LAST:event_btnSalvarActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        this.dispose();
+        
+        AgendaView a = new AgendaView();
+        a.setVisible(true);
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     /**
      * @param args the command line arguments

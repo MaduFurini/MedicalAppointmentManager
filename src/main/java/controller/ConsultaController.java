@@ -63,6 +63,8 @@ public class ConsultaController {
 
     
     public static boolean store(String paciente, String funcionario, String procedimento, String data, String hora, String observacao) {
+        String sqlSearch = "SELECT COUNT(*) FROM consultas WHERE data = ? AND hora = ?"; 
+
         String sqlSearchPaciente = "SELECT id FROM pessoas WHERE cpf = ?";
         String sqlSearchFuncionario = "SELECT id FROM pessoas WHERE cpf = ?";
         String sqlStore = "INSERT INTO consultas(id_paciente, id_funcionario, procedimento, data, hora, observacao) VALUES(?, ?, ?, ?, ?, ?)";
@@ -90,6 +92,18 @@ public class ConsultaController {
             Date date = inputFormat.parse(data);
             String formattedDate = outputFormat.format(date);
 
+                        
+            try (PreparedStatement search = con.prepareStatement(sqlSearch)) {
+                search.setString(1, formattedDate);
+                search.setString(2, hora);
+
+                ResultSet rs = search.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "Já existe uma consulta registrada nesta data e hora");
+                    return false;
+                }
+            }
+            
             try (PreparedStatement store = con.prepareStatement(sqlStore)) {
                 store.setInt(1, idPaciente);
                 store.setInt(2, idFuncionario);

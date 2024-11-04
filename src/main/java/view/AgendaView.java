@@ -4,11 +4,19 @@
  */
 package view;
 
+import connection.Conexao;
 import controller.ConsultaController;
 import controller.FuncionarioController;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import model.Consulta;
 
@@ -27,6 +35,8 @@ public class AgendaView extends javax.swing.JFrame {
     public AgendaView() {
         initComponents();
         getContentPane().setBackground(Color.white);
+        setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         
         List<Consulta> consultas = ConsultaController.index();
         table = (DefaultTableModel) jTable.getModel();
@@ -274,9 +284,75 @@ public class AgendaView extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnNovoActionPerformed
 
+    private void pesquisarConsulta(String nomeBusca) {
+        String searchSql = "SELECT consultas.id AS consulta_id, " +
+                           "paciente.nome AS paciente_nome, " +
+                           "paciente.cpf AS paciente_cpf, " +
+                           "paciente.email AS paciente_email, " +
+                           "paciente.sexo AS paciente_sexo, " +
+                           "paciente.endereco AS paciente_endereco, " +
+                           "paciente.dt_nascimento AS paciente_dt_nascimento, " +
+                           "funcionario.nome AS funcionario_nome, " +
+                           "consultas.procedimento, " +
+                           "consultas.data, " +
+                           "consultas.hora, " +
+                           "consultas.observacao " +
+                           "FROM consultas " +
+                           "JOIN pessoas AS paciente ON consultas.id_paciente = paciente.id " +
+                           "JOIN pessoas AS funcionario ON consultas.id_funcionario = funcionario.id " +
+                           "WHERE paciente.nome LIKE ?";
+
+        try (Connection con = Conexao.getConnection();
+             PreparedStatement search = con.prepareStatement(searchSql)) {
+
+            search.setString(1, "%" + nomeBusca + "%");
+
+            try (ResultSet rs = search.executeQuery()) {
+                table.setRowCount(0);
+
+                while (rs.next()) {
+                    table.addRow(new Object[]{
+                        rs.getString("consulta_id"),
+                        rs.getString("paciente_nome"),
+                        rs.getString("paciente_cpf"),
+                        rs.getString("paciente_email"),
+                        rs.getString("paciente_sexo"),
+                        rs.getString("paciente_endereco"),
+                        rs.getString("paciente_dt_nascimento"),
+                        rs.getString("funcionario_nome"),
+                        rs.getString("procedimento"),
+                        rs.getString("data"),
+                        rs.getString("hora"),
+                        rs.getString("observacao")
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao procurar consultas: " + e.getMessage());
+        }
+    }
+    
     private void inputProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputProcurarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputProcurarActionPerformed
+        String nome = inputProcurar.getText();
+
+        if (nome.length() > 2) {
+            inputProcurar.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    pesquisarConsulta(inputProcurar.getText());
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    pesquisarConsulta(inputProcurar.getText());
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    pesquisarConsulta(inputProcurar.getText());
+                }
+            });
+        }    }//GEN-LAST:event_inputProcurarActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
         table = (DefaultTableModel) jTable.getModel();
@@ -289,12 +365,17 @@ public class AgendaView extends javax.swing.JFrame {
                 );
             return;
         }
-        
-        int confirm = JOptionPane.showConfirmDialog(
-            this, 
-            "Você tem certeza que deseja excluir esta consulta?", 
-            "Confirmação", 
-            JOptionPane.YES_NO_OPTION
+
+        Object[] options = { "Sim", "Não" };
+        int confirm = JOptionPane.showOptionDialog(
+            this,
+            "Você tem certeza que deseja excluir este paciente?",
+            "Confirmação",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
         );
         
         if (confirm == JOptionPane.YES_OPTION) {
@@ -303,6 +384,9 @@ public class AgendaView extends javax.swing.JFrame {
             ConsultaController.destroy(id);
 
             table.removeRow(selectedRow);
+            
+            this.dispose();
+            this.setVisible(true);
         }
     }//GEN-LAST:event_btnExcluirActionPerformed
 
@@ -327,19 +411,22 @@ public class AgendaView extends javax.swing.JFrame {
     private void btnPacientesMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPacientesMenuActionPerformed
         this.setVisible(false);
         
-//        p.setVisible(true);
+        PacienteView p = new PacienteView();
+        p.setVisible(true);
     }//GEN-LAST:event_btnPacientesMenuActionPerformed
 
     private void btnFuncionariosMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFuncionariosMenuActionPerformed
         this.setVisible(false);
-        
-//        f.setVisible(true);
+
+        FuncionarioView f = new FuncionarioView();
+        f.setVisible(true);
     }//GEN-LAST:event_btnFuncionariosMenuActionPerformed
 
     private void sairBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairBtnActionPerformed
         this.setVisible(false);
-        
-//        l.setVisible(true);
+
+        LoginView l = new LoginView();
+        l.setVisible(true);
     }//GEN-LAST:event_sairBtnActionPerformed
 
     private void btnAgendaMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgendaMenuActionPerformed

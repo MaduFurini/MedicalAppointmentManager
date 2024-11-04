@@ -4,11 +4,18 @@
  */
 package view;
 
+import connection.Conexao;
 import controller.FuncionarioController;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import model.Funcionario;
 
@@ -24,10 +31,8 @@ public class FuncionarioView extends javax.swing.JFrame {
      */ 
     public FuncionarioView() {
         initComponents();
-        getContentPane().setBackground(Color.white);
+        getContentPane().setBackground(Color.white);               
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-       
-        setLocationRelativeTo(null); 
 
         List<Funcionario> funcionarios = FuncionarioController.index();
         table = (DefaultTableModel) jTable.getModel();
@@ -216,7 +221,15 @@ public class FuncionarioView extends javax.swing.JFrame {
             new String [] {
                 "ID", "Nome", "CPF", "Email", "Sexo", "CRM", "Cargo"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -274,8 +287,55 @@ public class FuncionarioView extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnNovoActionPerformed
 
+    private void pesquisarFuncionario(String nomeBusca) {
+        String searchSql = "SELECT * FROM pessoas WHERE tipo_usuario = 'FUNCIONARIO' AND nome LIKE ?";
+
+        try (Connection con = Conexao.getConnection();
+             PreparedStatement search = con.prepareStatement(searchSql)) {
+
+            search.setString(1, "%" + nomeBusca + "%"); 
+
+            try (ResultSet rs = search.executeQuery()) {
+                table.setRowCount(0);
+
+                while (rs.next()) {
+                    table.addRow(new Object[]{
+                        rs.getString("id"),
+                        rs.getString("nome"),
+                        rs.getString("cpf"),
+                        rs.getString("email"),
+                        rs.getString("sexo"),
+                        rs.getString("CRM"),
+                        rs.getString("Cargo")
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao procurar funcionários: " + e.getMessage());
+        }
+    }
+    
     private void inputProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputProcurarActionPerformed
-        // TODO add your handling code here:
+        String nome = inputProcurar.getText();
+
+        if (nome.length() > 2) {
+            inputProcurar.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    pesquisarFuncionario(inputProcurar.getText());
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    pesquisarFuncionario(inputProcurar.getText());
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    pesquisarFuncionario(inputProcurar.getText());
+                }
+            });
+        }
     }//GEN-LAST:event_inputProcurarActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
@@ -290,11 +350,16 @@ public class FuncionarioView extends javax.swing.JFrame {
             return;
         }
         
-        int confirm = JOptionPane.showConfirmDialog(
-            this, 
-            "Você tem certeza que deseja excluir este funcionário?", 
-            "Confirmação", 
-            JOptionPane.YES_NO_OPTION
+        Object[] options = { "Sim", "Não" };
+        int confirm = JOptionPane.showOptionDialog(
+            this,
+            "Você tem certeza que deseja excluir este paciente?",
+            "Confirmação",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
         );
         
         if (confirm == JOptionPane.YES_OPTION) {
@@ -303,6 +368,9 @@ public class FuncionarioView extends javax.swing.JFrame {
             FuncionarioController.destroy(id);
 
             table.removeRow(selectedRow);
+            
+            this.dispose();
+            this.setVisible(true);
         }
     }//GEN-LAST:event_btnExcluirActionPerformed
 

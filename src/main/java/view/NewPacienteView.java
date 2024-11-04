@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -28,6 +29,7 @@ public class NewPacienteView extends javax.swing.JFrame {
      */
     public NewPacienteView(int id) {
         initComponents();
+        setLocationRelativeTo(null);
         
         Border sexoBorder = new TitledBorder(new LineBorder(Color.BLACK), "Sexo");
         Border enderecoBorder = new TitledBorder(new LineBorder(Color.BLACK), "Endereço");
@@ -43,6 +45,7 @@ public class NewPacienteView extends javax.swing.JFrame {
     
     private void loadPaciente(int id) {
         Paciente paciente = PacienteController.show(id);
+        System.out.println(paciente.getNome());
         String[] partes = paciente.getEndereco().split(", ");
 
         try {

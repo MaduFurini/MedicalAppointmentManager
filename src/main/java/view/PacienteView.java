@@ -4,11 +4,18 @@
  */
 package view;
 
+import connection.Conexao;
 import controller.PacienteController;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import model.Paciente;
 
@@ -68,9 +75,9 @@ public class PacienteView extends javax.swing.JFrame {
         btnEditar = new javax.swing.JButton();
         btnExcluir = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        inputProcurar = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
+        inputProcurar = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setFocusable(false);
@@ -144,7 +151,7 @@ public class PacienteView extends javax.swing.JFrame {
         btnFuncionariosMenu1.setBackground(new java.awt.Color(198, 165, 255));
         btnFuncionariosMenu1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         btnFuncionariosMenu1.setForeground(new java.awt.Color(255, 255, 255));
-        btnFuncionariosMenu1.setIcon(new javax.swing.ImageIcon(System.getProperty("user.dir") + "\\src\\main\\java\\images\\doctor_icon.png"));
+        btnFuncionariosMenu1.setIcon(new javax.swing.ImageIcon(System.getProperty("user.dir") + "\\src\\main\\java\\images\\logout_icon.png"));
         btnFuncionariosMenu1.setText("Sair");
         btnFuncionariosMenu1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(205, 170, 255), 2));
         btnFuncionariosMenu1.setContentAreaFilled(false);
@@ -222,14 +229,6 @@ public class PacienteView extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setText("Procurar");
 
-        inputProcurar.setForeground(new java.awt.Color(204, 204, 204));
-        inputProcurar.setText("Nome do paciente...");
-        inputProcurar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputProcurarActionPerformed(evt);
-            }
-        });
-
         jTable.setBackground(new java.awt.Color(198, 165, 255));
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -256,6 +255,14 @@ public class PacienteView extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTable);
 
+        inputProcurar.setForeground(new java.awt.Color(204, 204, 204));
+        inputProcurar.setText("Nome do paciente...");
+        inputProcurar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inputProcurarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -269,9 +276,12 @@ public class PacienteView extends javax.swing.JFrame {
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(inputProcurar, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addGap(436, 436, 436))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(inputProcurar, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)))
                                 .addComponent(btnNovo, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -286,19 +296,21 @@ public class PacienteView extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(4, 4, 4)
                         .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(inputProcurar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnNovo, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnExcluir, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(inputProcurar, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnNovo, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnExcluir, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(220, 220, 220))
+                .addGap(208, 208, 208))
         );
 
         setBounds(0, 0, 1504, 707);
@@ -311,10 +323,34 @@ public class PacienteView extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnNovoActionPerformed
 
-    private void inputProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputProcurarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputProcurarActionPerformed
+    private void pesquisarPaciente(String nomeBusca) {
+        String searchSql = "SELECT * FROM pessoas WHERE tipo_usuario = 'PACIENTE' AND nome LIKE ?";
 
+        try (Connection con = Conexao.getConnection();
+             PreparedStatement search = con.prepareStatement(searchSql)) {
+
+            search.setString(1, "%" + nomeBusca + "%"); 
+
+            try (ResultSet rs = search.executeQuery()) {
+                table.setRowCount(0);
+
+                while (rs.next()) {
+                    table.addRow(new Object[]{
+                        rs.getString("id"),
+                        rs.getString("nome"),
+                        rs.getString("cpf"),
+                        rs.getString("email"),
+                        rs.getString("sexo"),
+                        rs.getString("endereco"),
+                        rs.getString("dt_nascimento")
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao procurar funcionários: " + e.getMessage());
+        }
+    }
+    
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
         table = (DefaultTableModel) jTable.getModel();
         int selectedRow = jTable.getSelectedRow();
@@ -327,11 +363,16 @@ public class PacienteView extends javax.swing.JFrame {
             return;
         }
         
-        int confirm = JOptionPane.showConfirmDialog(
-            this, 
-            "Você tem certeza que deseja excluir este paciente?", 
-            "Confirmação", 
-            JOptionPane.YES_NO_OPTION
+        Object[] options = { "Sim", "Não" };
+        int confirm = JOptionPane.showOptionDialog(
+            this,
+            "Você tem certeza que deseja excluir este paciente?",
+            "Confirmação",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
         );
         
         if (confirm == JOptionPane.YES_OPTION) {
@@ -340,6 +381,9 @@ public class PacienteView extends javax.swing.JFrame {
             PacienteController.destroy(id);
 
             table.removeRow(selectedRow);
+            
+            this.dispose();
+            this.setVisible(true);
         }
     }//GEN-LAST:event_btnExcluirActionPerformed
 
@@ -350,19 +394,22 @@ public class PacienteView extends javax.swing.JFrame {
     private void btnFuncionariosMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFuncionariosMenuActionPerformed
         this.setVisible(false);
 
-//        f.setVisible(true);
+        FuncionarioView f = new FuncionarioView();
+        f.setVisible(true);
     }//GEN-LAST:event_btnFuncionariosMenuActionPerformed
 
     private void sairBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairBtnActionPerformed
         this.setVisible(false);
 
-//        l.setVisible(true);
+        LoginView l = new LoginView();
+        l.setVisible(true);
     }//GEN-LAST:event_sairBtnActionPerformed
 
     private void btnAgendaMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgendaMenuActionPerformed
         this.setVisible(false);
 
-//        a.setVisible(true);
+        AgendaView a = new AgendaView();
+        a.setVisible(true);
     }//GEN-LAST:event_btnAgendaMenuActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
@@ -386,6 +433,29 @@ public class PacienteView extends javax.swing.JFrame {
     private void btnFuncionariosMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFuncionariosMenu1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnFuncionariosMenu1ActionPerformed
+
+    private void inputProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputProcurarActionPerformed
+        String nome = inputProcurar.getText();
+
+        if (nome.length() > 2) {
+            inputProcurar.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    pesquisarPaciente(inputProcurar.getText());
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    pesquisarPaciente(inputProcurar.getText());
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    pesquisarPaciente(inputProcurar.getText());
+                }
+            });
+        }
+    }//GEN-LAST:event_inputProcurarActionPerformed
 
     /**
      * @param args the command line arguments
